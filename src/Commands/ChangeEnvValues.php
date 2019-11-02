@@ -43,12 +43,15 @@ class ChangeEnvValues extends Command
         $env_file_path = app()->environmentFile();
 
         foreach ($keys as $key) {
-            $is_secret = Str::startsWith($key, '.') ? 1 : 0;
-            $key = str_replace('.', '', $key);
-            $value = env($key);
-
             $key_exploded = array_filter(explode('=', $key));
             $is_value_provided = count($key_exploded) > 1;
+
+            $is_secret = Str::startsWith($key, '.') ? 1 : 0;
+
+            $key = str_replace('.', '', $key);
+            $key = $is_value_provided ? $key_exploded[0] : $key;
+
+            $value = env($key);
 
             $new_value = $is_value_provided ? $key_exploded[1] : ($is_secret ? $this->secret("Enter {$key}") : $this->ask("Enter {$key}", $value));
 
